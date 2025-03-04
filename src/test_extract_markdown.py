@@ -5,6 +5,7 @@ from extract_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_text_nodes,
 )
 from textnode import TextNode, TextType
 
@@ -477,9 +478,89 @@ class TestSplitter(unittest.TestCase):
                 TextNode("This is text with a ", TextType.TEXT),
                 TextNode("to google", TextType.LINK, "https://www.google.com"),
                 TextNode(" and another ", TextType.TEXT),
-                TextNode(
-                    "to youtube", TextType.LINK, "https://www.youtube.com"
-                ),
+                TextNode("to youtube", TextType.LINK, "https://www.youtube.com"),
             ],
             split_nodes_link([node]),
+        )
+
+    def test_text_to_text_nodes_bold(self):
+        text = "This is **bold text** with some other words in it"
+
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
+                TextNode(" with some other words in it", TextType.TEXT),
+            ],
+            text_to_text_nodes(text),
+        )
+
+    def test_text_to_text_nodes_bold_and_italic(self):
+        text = "This is **bold text** with some _italic words_ in it"
+
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
+                TextNode(" with some ", TextType.TEXT),
+                TextNode("italic words", TextType.ITALIC),
+                TextNode(" in it", TextType.TEXT),
+            ],
+            text_to_text_nodes(text),
+        )
+
+    def test_text_to_text_nodes_bold_and_italic_and_code(self):
+        text = "This is **bold text** with some _italic words_ in it, and a `code block` too"
+
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
+                TextNode(" with some ", TextType.TEXT),
+                TextNode("italic words", TextType.ITALIC),
+                TextNode(" in it, and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" too", TextType.TEXT),
+            ],
+            text_to_text_nodes(text),
+        )
+
+    def test_text_to_text_nodes_bold_and_italic_and_code_and_image(self):
+        text = "This is **bold text** with some _italic words_ in it, and a `code block` too, and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg)"
+
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
+                TextNode(" with some ", TextType.TEXT),
+                TextNode("italic words", TextType.ITALIC),
+                TextNode(" in it, and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" too, and an ", TextType.TEXT),
+                TextNode(
+                    "obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"
+                ),
+            ],
+            text_to_text_nodes(text),
+        )
+
+    def test_text_to_text_nodes_bold_and_italic_and_code_and_image_and_link(self):
+        text = "This is **bold text** with some _italic words_ in it, and a `code block` too, and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
+                TextNode(" with some ", TextType.TEXT),
+                TextNode("italic words", TextType.ITALIC),
+                TextNode(" in it, and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" too, and an ", TextType.TEXT),
+                TextNode(
+                    "obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"
+                ),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            text_to_text_nodes(text),
         )

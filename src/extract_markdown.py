@@ -4,6 +4,18 @@ from textnode import TextNode, TextType
 accepted_delimiters = ["**", "_", "`"]
 
 
+def text_to_text_nodes(text):
+    big_node = [TextNode(text, TextType.TEXT)]
+
+    big_node = split_nodes_delimiter(big_node, accepted_delimiters[0], TextType.BOLD)
+    big_node = split_nodes_delimiter(big_node, accepted_delimiters[1], TextType.ITALIC)
+    big_node = split_nodes_delimiter(big_node, accepted_delimiters[2], TextType.CODE)
+    big_node = split_nodes_image(big_node)
+    big_node = split_nodes_link(big_node)
+
+    return big_node
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
 
