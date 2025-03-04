@@ -1,6 +1,6 @@
 import unittest
 
-from extract_markdown import split_nodes_delimiter
+from extract_markdown import extract_markdown_images, split_nodes_delimiter
 from textnode import TextNode, TextType
 
 
@@ -264,4 +264,42 @@ class TestSplitter(unittest.TestCase):
                 TextNode(" italic", TextType.TEXT),
             ],
             italic_nodes,
+        )
+
+    def test_extract_one_image(self):
+        text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+
+        self.assertListEqual(
+            [("image", "https://i.imgur.com/zjjcJKZ.png")],
+            extract_markdown_images(text),
+        )
+
+    def test_extract_two_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+
+        self.assertListEqual(
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+            extract_markdown_images(text),
+        )
+
+    def test_extract_one_link(self):
+        text = "This is text with link ![to youtube](https://www.youtube.com)"
+
+        self.assertListEqual(
+            [("to youtube", "https://www.youtube.com")],
+            extract_markdown_images(text),
+        )
+
+    def test_extract_two_links(self):
+        text = "This is text with link ![to youtube](https://www.youtube.com) and ![to google](https://www.google.com)"
+
+        self.assertListEqual(
+            [
+                ("to youtube", "https://www.youtube.com"),
+                ("to google", "https://www.google.com"),
+            ],
+            extract_markdown_images(text),
         )
