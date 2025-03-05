@@ -1,5 +1,6 @@
 import os
 import shutil
+from sys import argv
 
 from markdowntohtml import generate_pages_recursive
 
@@ -36,9 +37,18 @@ def copy_static_content_recursive(from_path, to_path):
             copy_static_content_recursive(src_path, target_path)
 
 
+def get_base_path():
+    args = argv
+
+    if len(args) == 2:
+        return args[1]
+    else:
+        return "/"
+
+
 def main():
     copy_static_content_recursive("static", "public")
-    generate_pages_recursive("content", "template.html", "public")
+    generate_pages_recursive("content", "template.html", "docs", get_base_path())
 
 
 if __name__ == "__main__":
