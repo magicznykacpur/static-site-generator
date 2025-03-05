@@ -2,6 +2,7 @@ import unittest
 
 from extract_markdown import (
     extract_markdown_images,
+    extract_title,
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
@@ -564,3 +565,17 @@ class TestSplitter(unittest.TestCase):
             ],
             text_to_text_nodes(text),
         )
+
+    def test_extract_title(self):
+        markdown = "# Tolkien Fan Club"
+
+        self.assertEqual("Tolkien Fan Club", extract_title(markdown))
+
+    def test_extract_title_from_multi_line(self):
+        markdown = """
+# Tolkien Fan Club
+
+Other stuff in the markdown
+"""
+
+        self.assertEqual("Tolkien Fan Club", extract_title(markdown))
