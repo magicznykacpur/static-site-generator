@@ -1,7 +1,25 @@
 from blocks import BlockType, block_to_block_type, markdown_to_blocks
-from extract_markdown import text_to_text_nodes
+from extract_markdown import extract_title, text_to_text_nodes
 from parentnode import ParentNode
 from textnode import TextNode, TextType, text_node_to_html_node
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page {from_path} to {dest_path} using {template_path}")
+
+    markdown = open(from_path).read()
+    template = open(template_path).read()
+
+    html = markdown_to_html_node(markdown).to_html()
+
+    title = extract_title(markdown)
+
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
+
+    page = open(dest_path, "w")
+    page.write(template)
+    page.close()
 
 
 def markdown_to_html_node(markdown):
@@ -15,10 +33,9 @@ def markdown_to_html_node(markdown):
             case BlockType.PARAGRAPH:
                 nodes.append(get_block_parent_node(block, "p"))
             case BlockType.HEADING:
-                heading_count = block.count("#")
-                text = block.replace(f"{heading_count * "#"} ", "")
-
-                nodes.append(get_block_parent_node(text, f"h{heading_count}"))
+                nodes.append(get_heading_block_node(block))
+            case BlockType.QUOTE:
+                nodes.append(get_quote_block_node(block))
             case BlockType.CODE:
                 nodes.append(get_code_block_node(block))
             case BlockType.UNORDERED_LIST:
@@ -36,6 +53,23 @@ def get_block_parent_node(text, tag):
     html_nodes = list(map(lambda node: text_node_to_html_node(node), text_nodes))
 
     return ParentNode(tag, html_nodes)
+
+
+def get_heading_block_node(text):
+    heading_count = text.count("#")
+    text = text.replace(f"{heading_count * "#"} ", "")
+
+    return get_block_parent_node(text, f"h{heading_count}")
+
+
+def get_quote_block_node(text):
+    lines = text.split("\n")
+    lines = list(map(lambda line: line.replace("> ", ""), lines))
+
+    return ParentNode(
+        "blockquote",
+        [text_node_to_html_node(TextNode("\n".join(lines), TextType.TEXT))],
+    )
 
 
 def get_code_block_node(text):
