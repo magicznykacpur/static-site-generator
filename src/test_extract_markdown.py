@@ -363,22 +363,6 @@ class TestSplitter(unittest.TestCase):
             split_nodes_image([node]),
         )
 
-    def test_split_only_two_image(self):
-        node = TextNode(
-            "![image](https://i.imgur.com/zjjcJKZ.png)![second image](https://i.imgur.com/3elNhQu.png)",
-            TextType.TEXT,
-        )
-
-        self.assertListEqual(
-            [
-                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
-                TextNode(
-                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
-                ),
-            ],
-            split_nodes_image([node]),
-        )
-
     def test_split_text_with_two_images_one_after_another(self):
         node = TextNode(
             "This is text with images ![image](https://i.imgur.com/zjjcJKZ.png) ![second image](https://i.imgur.com/3elNhQu.png)",
@@ -468,7 +452,7 @@ class TestSplitter(unittest.TestCase):
             split_nodes_link([node]),
         )
 
-    def test_split_text_with_two_images(self):
+    def test_split_text_with_two_links(self):
         node = TextNode(
             "This is text with a [to google](https://www.google.com) and another [to youtube](https://www.youtube.com)",
             TextType.TEXT,

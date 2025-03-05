@@ -89,51 +89,23 @@ def split_by_multiple_matches(matches, text, text_type):
     nodes = []
 
     for i in range(len(matches)):
-        chunks = []
-
-        if text_type == TextType.IMAGE:
-            chunks = text.split(f"![{matches[i][0]}]({matches[i][1]})")
+        splitter = ""
+        if text_type == TextType.LINK:
+            splitter = f"[{matches[i][0]}]({matches[i][1]})"
         else:
-            chunks = text.split(f"[{matches[i][0]}]({matches[i][1]})")
+            splitter = f"![{matches[i][0]}]({matches[i][1]})"
 
-        if len(chunks[0]) == 0:
-            nodes.append(TextNode(matches[i][0], text_type, matches[i][1]))
+        chunks = text.split(splitter)
+        nodes.extend(
+            [
+                TextNode(chunks[0], TextType.TEXT),
+                TextNode(matches[i][0], text_type, matches[i][1]),
+            ]
+        )
 
-        if len(chunks[0]) > 0 and i == 0:
-            nodes.extend(
-                [
-                    TextNode(chunks[0], TextType.TEXT),
-                    TextNode(matches[i][0], text_type, matches[i][1]),
-                ]
-            )
-
-        if len(chunks[1]) == 0:
-            nodes.append(TextNode(matches[i][0], text_type, matches[i][1]))
-        else:
-            remaining_splitter = ""
-            in_between_splitter = ""
-
-            if text_type == TextType.IMAGE:
-                remaining_splitter = (
-                    f"{nodes[i].text}![{matches[i][0]}]({matches[i][1]})"
-                )
-                in_between_splitter = f"![{matches[i + 1][0]}]({matches[i + 1][1]})"
-            else:
-                remaining_splitter = (
-                    f"{nodes[i].text}[{matches[i][0]}]({matches[i][1]})"
-                )
-                in_between_splitter = f"[{matches[i + 1][0]}]({matches[i + 1][1]})"
-
-            remaining = text.split(remaining_splitter)
-
-            if len(remaining) == 1:
-                continue
-
-            in_between = remaining[1].split(in_between_splitter)
-
-            nodes.append(
-                TextNode(in_between[0], TextType.TEXT),
-            )
+        text = text.split(f"{chunks[0]}{splitter}")[1]
+        if i == len(matches) - 1 and len(text) > 0:
+            nodes.append(TextNode(text, TextType.TEXT))
 
     return nodes
 
