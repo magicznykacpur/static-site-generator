@@ -39,4 +39,5 @@ def check_ordered_list_block_type(block):
 
 
 def markdown_to_blocks(markdown):
-    return list(map(lambda block: block.strip(), markdown.split("\n\n")))
+    blocks = list(map(lambda block: block.strip(), markdown.split("\n\n")))
+    return list(filter(None, blocks))
