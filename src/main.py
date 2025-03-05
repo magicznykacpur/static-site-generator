@@ -47,7 +47,7 @@ def get_base_path():
 
 
 def main():
-    copy_static_content_recursive("static", "public")
+    copy_static_content_recursive("static", "docs")
     generate_pages_recursive("content", "template.html", "docs", get_base_path())
 
 
